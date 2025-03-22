@@ -1,5 +1,6 @@
 pub mod utils;
 pub mod game;
+pub mod rayattacks;
 use crate::game::*;
 
 fn main() {
