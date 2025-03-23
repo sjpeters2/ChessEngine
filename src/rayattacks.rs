@@ -1,5 +1,7 @@
 use std::{i64, u64};
 
+use crate::utils::*;
+
 type Bitboard = u64;
 
 
@@ -153,6 +155,19 @@ fn bitboard_to_string (bitboard: Bitboard, mark:Option<usize>) -> String {
     return board
 }
 
+fn blocked_ray_attacks(ray: Bitboard, ray_family: &Vec<Bitboard>, forward_ray: bool, occupancy: Bitboard) -> Bitboard {
+    let overlap = ray & occupancy; //Where the bitboard from the ray for an attack is in union
+    let mut bit_index;
+    if forward_ray {
+        bit_index = bit_scan(overlap);
+
+    } else {
+        bit_index = bit_scan_backwards(overlap);
+    }
+    let ray_after = ray_family[bit_index];
+    return ray ^ ray_after;
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -161,21 +176,54 @@ mod tests {
     fn test_index_to_position(){
         println!("Heres the result of index_to_Postion with an index of 0: {:?} ", index_to_coordinate(0));
     }
+        
 
     #[test]
-    fn make_general_ray(){
-        let row = 4;
-        let col = 5;
+    fn test_blocked_ray(){
+        let mut occupancy = 0;
+        for i in 0..16{
+            if i == 5{
+                continue;
+            }
+            occupancy |= 1 << i;
+        }
 
-        let idx = col + ((row-1) * 8) - 1;
-        println!("Heres the North  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::North), Some(idx)));
-        println!("Heres the South  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::South), Some(idx)));
-        println!("Heres the East  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::East), Some(idx)));
-        println!("Heres the West  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::West), Some(idx)));
-        println!("Heres the NorthEast  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::Northeast), Some(idx)));
-        println!("Heres the NorthWest  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::Northwest), Some(idx)));
-        println!("Heres the SouthWest  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::Southwest), Some(idx)));
-        println!("Heres the SouthEast  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::Southeast), Some(idx)));
+        occupancy |= 1 << 22;
+        for i in 48..64 {
+            if i == 57 || i == 49 {
+                continue;
+            }
+            occupancy |= 1 << i;
+        }
+        occupancy |= 1 << 41;
+        occupancy |= 1 << 42;
 
+        let rays = Rays::init();
+        let row = 6;
+        let col = 7;
+        let idx = (row - 1) * 8 + col - 1;
+        //occupancy |= rays.nw_rays[idx];
+        
+
+        println!("Here is the occupancy bitboard:\n{}", bitboard_to_string(occupancy, Some(idx)));
+        println!("Here is the ray we're testing: \n{}", bitboard_to_string(rays.sw_rays[idx], Some(idx)));
+        let blocked_ray = blocked_ray_attacks(rays.sw_rays[idx], &rays.sw_rays, false, occupancy);
+        println!("Here is the ray we're testing: \n{}", bitboard_to_string(blocked_ray, Some(idx)));
     }
+    // #[test]
+    // fn make_general_ray(){
+    //     let row = 4;
+    //     let col = 5;
+    //
+    //     let idx = col + ((row-1) * 8) - 1;
+    //     println!("Heres the North  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::North), Some(idx)));
+    //     println!("Heres the South  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::South), Some(idx)));
+    //     println!("Heres the East  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::East), Some(idx)));
+    //     println!("Heres the West  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::West), Some(idx)));
+    //     println!("Heres the NorthEast  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::Northeast), Some(idx)));
+    //     println!("Heres the NorthWest  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::Northwest), Some(idx)));
+    //     println!("Heres the SouthWest  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::Southwest), Some(idx)));
+    //     println!("Heres the SouthEast  bitboard: -----------------------------\n{}\n------------------------------", bitboard_to_string(make_ray(row as i64,col as i64,Direction::Southeast), Some(idx)));
+    //
+    // }
 }
