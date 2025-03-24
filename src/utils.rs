@@ -1,5 +1,12 @@
 // Magic Table to enable fast implementation of a bit scan function
-type Bitboard = u64;
+pub type Bitboard = u64;
+
+
+#[derive(Debug,PartialEq, Copy, Clone)]
+pub enum Color {
+    White,
+    Black
+}
 
 static MOD67TABLE: [usize; 67] = [
     64, 0, 1, 39, 2, 15, 40, 23,
@@ -25,6 +32,10 @@ pub fn bit_scan_backwards(bit: u64) -> usize {
     (bit as f64).log2().floor() as usize
 }
 
+pub fn row_col_to_index(row:i32, col:i32) -> i32 {
+    return (col - 1) + (row - 1 )*8;
+}
+
 
 pub fn set_bit (row: i32, col: i32) -> Bitboard {
     if row < 1 || row > 8 || col < 1 || col > 8 {
@@ -35,7 +46,7 @@ pub fn set_bit (row: i32, col: i32) -> Bitboard {
 }
 
 pub fn print_bitboard (bitboard: Bitboard, mark:Option<usize>) {
-    println!("{}", bitboard_to_string(bitboard, mark))
+    println!("{}", bitboard_to_string(bitboard, mark));
 }
 
 pub fn bitboard_to_string (bitboard: Bitboard, mark:Option<usize>) -> String {

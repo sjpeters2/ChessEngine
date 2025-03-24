@@ -1,7 +1,6 @@
+pub mod bitboard;
 pub mod utils;
 pub mod game;
-pub mod rayattacks;
-pub mod knightattacks;
 use crate::game::*;
 
 fn main() {

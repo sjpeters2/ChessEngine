@@ -51,11 +51,6 @@ pub fn position_to_bit(position: &str) -> Result<PiecePosition, String> {
 }
 
 
-#[derive(Debug,PartialEq, Copy, Clone)]
-pub enum Color {
-    White,
-    Black
-}
 
 #[derive(Debug, PartialEq)]
 pub enum PieceType {
